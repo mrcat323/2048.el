@@ -38,14 +38,20 @@
   (let ((inhibit-read-only t))
     (erase-buffer)
     (dotimes (row *2048-rows*)
+
+      ;;print the separator lineon top of, and between cells
       (dotimes (col *2048-columns*)
         (insert-string "+-------"))
       (insert-string "+")
       (insert "\n")
+
+      ;;print the numbers
       (dotimes (col *2048-columns*)
         (insert-string (format "|%5d  " (2048-get-cell row col))))
       (insert "|")
       (insert "\n"))
+
+    ;;print the separator line on the bottom of the last row.
     (dotimes (col *2048-columns*)
       (insert-string "+-------"))
     (insert-string "+")))
