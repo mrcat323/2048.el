@@ -39,5 +39,5 @@
     (erase-buffer)
     (dotimes (row *2048-rows*)
       (dotimes (col *2048-columns*)
-        (insert-string (2048-get-cell row col) " "))
+        (insert-string (format "|%5d | " (2048-get-cell row col))))
       (insert "\n"))))
