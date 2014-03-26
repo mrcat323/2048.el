@@ -33,6 +33,9 @@
   "The board itself. If a number is in the square, the number is stored. Otherwise, 0 is stored.
    You should access this with 2048-get-cell.")
 
+(defvar *2048-combines-this-move* nil
+  "This stores, for each cell in the board, whether the number in it was generated this turn by two numbers combining.")
+
 (defvar *2048-columns* 4
   "The width of the board. It could be customized, if you wanted to make the game very very hard, or very very easy.")
 
@@ -49,6 +52,8 @@
   "Begin a game of 2048."
   (setq *2048-board* (make-vector (* *2048-columns* *2048-rows*)
                                   0))
+  (setq *2048-combines-this-move* (make-vector (* *2048-columns* *2048-rows*)
+                                               nil))
   (2048-insert-random-cell)
   (2048-insert-random-cell)
   (2048-print-board))
@@ -65,6 +70,20 @@
         (+ (* row *2048-columns*)
            column)
         val))
+
+(defun 2048-was-combined-this-turn (row column)
+  "Returns whether the number in it was generated this turn by two numbers combining."
+  (elt *2048-combines-this-move*
+       (+ (* row *2048-columns*)
+          column)))
+
+(defun 2048-set-was-combined-this-turn (row column)
+  "Returns whether the number in it was generated this turn by two numbers combining."
+  (2048-debug (format "setting (%d, %d) as combined this turn." row column))
+  (aset *2048-combines-this-move*
+        (+ (* row *2048-columns*)
+           column)
+        t))
 
 (defun 2048-insert-random-cell ()
   "Picks a number randomly, and inserts it into a random cell."
@@ -127,15 +146,18 @@
       (let ((from-val (2048-get-cell from-row from-column))
             (to-val (2048-get-cell to-row to-column)))
         (cond ((eq from-val to-val)
-               (unless (eq from-val 0)
+               (unless (or (eq from-val 0)
+                           (2048-was-combined-this-turn to-row to-column))
+                 (2048-debug (format "combining (%d, %d) into (%d, %d)" from-row from-column to-row to-column))
                  (2048-set-cell to-row to-column (* from-val 2))
-                 (2048-set-cell from-row from-column 0)))
+                 (2048-set-cell from-row from-column 0)
+                 (2048-set-was-combined-this-turn to-row to-column)))
               ((eq to-val 0)
                (2048-set-cell to-row to-column from-val)
                (2048-set-cell from-row from-column 0)
                (2048-move to-row to-column delta-row delta-column)
                t)
-              (t nil))))))
+              (t nil)))))) ;;ugh, need to pass out whether something was combined, and pass that to the _next_ call to 2048-move. We see bugs on rows like 4 0 4 0.
 
 (defun in-bounds (row column)
   (and (>= row 0)
@@ -147,6 +169,8 @@
 (defun 2048-up ()
   "Shifts the board up"
   (interactive)
+  (setq *2048-combines-this-move* (make-vector (* *2048-columns* *2048-rows*)
+                                               nil))
   (let ((has-moved nil))
     (2048-for row 1 (1- *2048-rows*)
               (2048-for col 0 (1- *2048-columns*)
@@ -159,6 +183,8 @@
 (defun 2048-down ()
   "Shifts the board down"
   (interactive)
+  (setq *2048-combines-this-move* (make-vector (* *2048-columns* *2048-rows*)
+                                               nil))
   (let ((has-moved nil))
     (2048-for-down row (- *2048-rows* 2) 0
                    (2048-for col 0 (1- *2048-columns*)
@@ -171,6 +197,8 @@
 (defun 2048-left ()
   "Shifts the board left."
   (interactive)
+  (setq *2048-combines-this-move* (make-vector (* *2048-columns* *2048-rows*)
+                                               nil))
   (let ((has-moved nil))
     (2048-for row 0 (1- *2048-rows*)
               (2048-for col 1 (1- *2048-columns*)
@@ -184,11 +212,13 @@
 (defun 2048-right ()
   "Shifts the board right."
   (interactive)
+  (setq *2048-combines-this-move* (make-vector (* *2048-columns* *2048-rows*)
+                                               nil))
   (let ((has-moved nil))
     (2048-for row 0 (1- *2048-rows*)
-              (2048-for-down col (- *2048-columns* 2) 0
-                             (setq has-moved (or (2048-move row col 0 1)
-                                                 has-moved))))
+              (2048-for col 0 (- *2048-columns* 2)
+                        (setq has-moved (or (2048-move row col 0 1)
+                                            has-moved))))
     (when has-moved
       (2048-insert-random-cell)))
   (2048-print-board))
