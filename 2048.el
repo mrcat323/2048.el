@@ -72,9 +72,19 @@
       (insert-string "+")
       (insert "\n")
 
+      (dotimes (col *2048-columns*)
+        (insert-string "|       "))
+      (insert "|")
+      (insert "\n")
+
       ;;print the numbers
       (dotimes (col *2048-columns*)
         (insert-string (format "|%5d  " (2048-get-cell row col))))
+      (insert "|")
+      (insert "\n")
+
+      (dotimes (col *2048-columns*)
+        (insert-string "|       "))
       (insert "|")
       (insert "\n"))
 
