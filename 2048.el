@@ -147,38 +147,50 @@
 (defun 2048-up ()
   "Shifts the board up"
   (interactive)
-  (2048-for row 1 (1- *2048-rows*)
-            (2048-for col 0 (1- *2048-columns*)
-                      (2048-move row col -1 0)))
-  (2048-insert-random-cell)
+  (let ((has-moved nil))
+    (2048-for row 1 (1- *2048-rows*)
+              (2048-for col 0 (1- *2048-columns*)
+                        (setq has-moved (or (2048-move row col -1 0)
+                                            has-moved)))))
+  (when has-moved
+    (2048-insert-random-cell))
   (2048-print-board))
 
 (defun 2048-down ()
   "Shifts the board down"
   (interactive)
-  (2048-for-down row (- *2048-rows* 2) 0
-                 (2048-for col 0 (1- *2048-columns*)
-                           (2048-move row col 1 0)))
-  (2048-insert-random-cell)
+  (let ((has-moved nil))
+    (2048-for-down row (- *2048-rows* 2) 0
+                   (2048-for col 0 (1- *2048-columns*)
+                             (setq has-moved (or (2048-move row col 1 0)
+                                                 has-moved)))))
+  (when has-moved
+    (2048-insert-random-cell))
   (2048-print-board))
 
 (defun 2048-left ()
   "Shifts the board left."
   (interactive)
-  (2048-for row 0 (1- *2048-rows*)
-            (2048-for col 1 (1- *2048-columns*)
-                      (2048-move row col 0 -1)))
-  (2048-insert-random-cell)
+  (let ((has-moved nil))
+    (2048-for row 0 (1- *2048-rows*)
+              (2048-for col 1 (1- *2048-columns*)
+                        (setq has-moved (or (2048-move row col 0 -1)
+                                            has-moved)))))
+  (when has-moved
+    (2048-insert-random-cell))
   (2048-print-board))
 
 
 (defun 2048-right ()
   "Shifts the board right."
   (interactive)
-  (2048-for row 0 (1- *2048-rows*)
-            (2048-for-down col (- *2048-columns* 2) 0
-                           (2048-move row col 0 1)))
-  (2048-insert-random-cell)
+  (let ((has-moved nil))
+    (2048-for row 0 (1- *2048-rows*)
+              (2048-for-down col (- *2048-columns* 2) 0
+                             (setq has-moved (or (2048-move row col 0 1)
+                                                 has-moved)))))
+  (when has-moved
+    (2048-insert-random-cell))
   (2048-print-board))
 
 (defmacro 2048-for (var init end &rest body)
