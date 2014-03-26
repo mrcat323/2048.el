@@ -114,24 +114,34 @@
       (insert-string "+-------"))
     (insert-string "+")))
 
-(defun 2048-move (from-row from-column to-row to-column)
+(defun 2048-move (from-row from-column delta-row delta-column)
   "Tries to move the number in (from-row, from-column) to (to-row, to-column).
    This succeeds when (to-row, to-column) either is 0,
    or is the same value as (from-row, from-column).
+   If (to-row, to-column) is zero, cascade and try to move further.
    Returns t if we were able to move; otherwise nil."
-  (2048-debug (format "moving the cell (%d, %d) to (%d, %d)" from-row from-column to-row to-column))
-  (let ((from-val (2048-get-cell from-row from-column))
-        (to-val (2048-get-cell to-row to-column)))
-    (cond ((eq from-val to-val)
-           (unless (eq from-val 0)
-             (2048-set-cell to-row to-column (* from-val 2))
-             (2048-set-cell from-row from-column 0)))
-          ((eq to-val 0)
-           (2048-set-cell to-row to-column from-val)
-           (2048-set-cell from-row from-column 0))
-          (t nil))))
+  (let ((to-row (+ from-row delta-row))
+        (to-column (+ from-column delta-column)))
+    (when (in-bounds to-row to-column)
+      (2048-debug (format "moving the cell (%d, %d) by (%d, %d) to (%d, %d)" from-row from-column delta-row delta-column to-row to-column))
+      (let ((from-val (2048-get-cell from-row from-column))
+            (to-val (2048-get-cell to-row to-column)))
+        (cond ((eq from-val to-val)
+               (unless (eq from-val 0)
+                 (2048-set-cell to-row to-column (* from-val 2))
+                 (2048-set-cell from-row from-column 0)))
+              ((eq to-val 0)
+               (2048-set-cell to-row to-column from-val)
+               (2048-set-cell from-row from-column 0)
+               (2048-move to-row to-column delta-row delta-column)
+               t)
+              (t nil))))))
 
-
+(defun in-bounds (row column)
+  (and (>= row 0)
+       (>= column 0)
+       (< row *2048-rows*)
+       (< column *2048-columns*)))
 
 
 (defun 2048-up ()
@@ -139,7 +149,7 @@
   (interactive)
   (2048-for row 1 (1- *2048-rows*)
             (2048-for col 0 (1- *2048-columns*)
-                      (2048-move row col (- row 1) col)))
+                      (2048-move row col -1 0)))
   (2048-print-board))
 
 (defun 2048-down ()
@@ -147,7 +157,7 @@
   (interactive)
   (2048-for-down row (- *2048-rows* 2) 0
                  (2048-for col 0 (1- *2048-columns*)
-                           (2048-move row col (+ row 1) col)))
+                           (2048-move row col 1 0)))
   (2048-print-board))
 
 (defun 2048-left ()
@@ -155,7 +165,7 @@
   (interactive)
   (2048-for row 0 (1- *2048-rows*)
             (2048-for col 1 (1- *2048-columns*)
-                      (2048-move row col row (- col 1))))
+                      (2048-move row col 0 -1)))
   (2048-print-board))
 
 
@@ -164,7 +174,7 @@
   (interactive)
   (2048-for row 0 (1- *2048-rows*)
             (2048-for-down col (- *2048-columns* 2) 0
-                           (2048-move row col row (+ col 1))))
+                           (2048-move row col 0 1)))
   (2048-print-board))
 
 (defmacro 2048-for (var init end &rest body)
