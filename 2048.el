@@ -172,8 +172,8 @@
   (setq *2048-combines-this-move* (make-vector (* *2048-columns* *2048-rows*)
                                                nil))
   (let ((has-moved nil))
-    (2048-for row 1 (1- *2048-rows*)
-              (2048-for col 0 (1- *2048-columns*)
+    (2048-for col 0 (1- *2048-columns*)
+              (2048-for row 1 (1- *2048-rows*)
                         (setq has-moved (or (2048-move row col -1 0)
                                             has-moved))))
     (when has-moved
