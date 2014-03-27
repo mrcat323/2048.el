@@ -45,6 +45,9 @@
 (defvar *2048-random-4-threshold* 90
   "When a new number is inserted into the board, insert a 4 if (>= (random 100) *2048-random-4-threshold*). Otherwise, 2.")
 
+(defvar *2048-victory-value* 2048
+  "When this number is reached, the user wins! Yay!")
+
 (defvar *2048-debug* nil
   "when 't, print debugging information.")
 
@@ -105,6 +108,32 @@
       (setq column (random *2048-columns*)))
     (2048-set-cell row column number-to-insert)))
 
+(defun 2048-check-game-end ()
+  "Checks whether the game has either been won or lost. If so, it handles notifying and restarting."
+  (cond ((2048-game-was-won)
+         (message "yay!"))
+        ((2048-game-was-lost)
+         (message "boo!"))))
+
+(defun 2048-game-was-won ()
+  "Returns t if the game was won, nil otherwise."
+  (let ((game-was-won nil))
+    (2048-for row 0 (1- *2048-rows*)
+              (2048-for column 0 (1- *2048-columns*)
+                        (when (eq (2048-get-cell row column)
+                                  *2048-victory-value*)
+                          (setq game-was-won t))))
+    game-was-won))
+
+(defun 2048-game-was-lost ()
+  "Returns t if the game was lost, nil otherwise."
+  (let ((game-was-lost t))
+    (2048-for row 0 (1- *2048-rows*)
+              (2048-for column 0 (1- *2048-columns*)
+                        (when (eq (2048-get-cell row column)
+                                  0)
+                          (setq game-was-won nil))))
+    game-was-lost))
 
 (defun 2048-print-board ()
   "Wipes the entire field, and prints the board."
@@ -246,7 +275,8 @@
                                                nil))
 
           ,@body
-          (2048-print-board)))
+          (2048-print-board)
+          (2048-check-game-end)))
 
 (defmacro 2048-debug (&rest body)
   "If *2048-debug* is 't, log ,@body as a string to the buffer named '2048-debug'"
