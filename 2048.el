@@ -176,59 +176,54 @@
 (defun 2048-up ()
   "Shifts the board up"
   (interactive)
-  (setq *2048-combines-this-move* (make-vector (* *2048-columns* *2048-rows*)
-                                               nil))
-  (let ((has-moved nil))
-    (2048-for col 0 (1- *2048-columns*)
-              (2048-for row 1 (1- *2048-rows*)
-                        (setq has-moved (or (2048-move row col -1 0)
-                                            has-moved))))
-    (when has-moved
-      (2048-insert-random-cell)))
-  (2048-print-board))
+  (2048-game-move
+   (setq *2048-combines-this-move* (make-vector (* *2048-columns* *2048-rows*)
+                                                nil))
+   (let ((has-moved nil))
+     (2048-for col 0 (1- *2048-columns*)
+               (2048-for row 1 (1- *2048-rows*)
+                         (setq has-moved (or (2048-move row col -1 0)
+                                             has-moved))))
+     (when has-moved
+       (2048-insert-random-cell)))))
 
 (defun 2048-down ()
   "Shifts the board down"
   (interactive)
-  (setq *2048-combines-this-move* (make-vector (* *2048-columns* *2048-rows*)
-                                               nil))
-  (let ((has-moved nil))
-    (2048-for col 0 (1- *2048-columns*)
-                   (2048-for-down row (- *2048-rows* 2) 0
-                             (setq has-moved (or (2048-move row col 1 0)
-                                                 has-moved))))
-    (when has-moved
-      (2048-insert-random-cell)))
-  (2048-print-board))
+  (2048-game-move
+   (setq *2048-combines-this-move* (make-vector (* *2048-columns* *2048-rows*)
+                                                nil))
+   (let ((has-moved nil))
+     (2048-for col 0 (1- *2048-columns*)
+               (2048-for-down row (- *2048-rows* 2) 0
+                              (setq has-moved (or (2048-move row col 1 0)
+                                                  has-moved))))
+     (when has-moved
+       (2048-insert-random-cell)))))
 
 (defun 2048-left ()
   "Shifts the board left."
   (interactive)
-  (setq *2048-combines-this-move* (make-vector (* *2048-columns* *2048-rows*)
-                                               nil))
-  (let ((has-moved nil))
-    (2048-for row 0 (1- *2048-rows*)
-              (2048-for col 1 (1- *2048-columns*)
-                        (setq has-moved (or (2048-move row col 0 -1)
-                                            has-moved))))
-    (when has-moved
-      (2048-insert-random-cell)))
-  (2048-print-board))
-
+  (2048-game-move
+   (let ((has-moved nil))
+     (2048-for row 0 (1- *2048-rows*)
+               (2048-for col 1 (1- *2048-columns*)
+                         (setq has-moved (or (2048-move row col 0 -1)
+                                             has-moved))))
+     (when has-moved
+       (2048-insert-random-cell)))))
 
 (defun 2048-right ()
   "Shifts the board right."
   (interactive)
-  (setq *2048-combines-this-move* (make-vector (* *2048-columns* *2048-rows*)
-                                               nil))
-  (let ((has-moved nil))
-    (2048-for row 0 (1- *2048-rows*)
-              (2048-for-down col (- *2048-columns* 2) 0
-                             (setq has-moved (or (2048-move row col 0 1)
-                                                 has-moved))))
-    (when has-moved
-      (2048-insert-random-cell)))
-  (2048-print-board))
+  (2048-game-move
+   (let ((has-moved nil))
+     (2048-for row 0 (1- *2048-rows*)
+               (2048-for-down col (- *2048-columns* 2) 0
+                              (setq has-moved (or (2048-move row col 0 1)
+                                                  has-moved))))
+     (when has-moved
+       (2048-insert-random-cell)))))
 
 (defmacro 2048-for (var init end &rest body)
   "Helper function. executes 'body repeatedly, with 'var assigned values starting at 'init, and ending at 'end, increasing by one each iteration."
@@ -245,6 +240,13 @@
      (while (>= ,var end-val)
        ,@body
        (setq ,var (1- ,var)))))
+
+(defmacro 2048-game-move (&rest body)
+  `(progn (setq *2048-combines-this-move* (make-vector (* *2048-columns* *2048-rows*)
+                                               nil))
+
+          ,@body
+          (2048-print-board)))
 
 (defmacro 2048-debug (&rest body)
   "If *2048-debug* is 't, log ,@body as a string to the buffer named '2048-debug'"
