@@ -216,9 +216,9 @@
                                                nil))
   (let ((has-moved nil))
     (2048-for row 0 (1- *2048-rows*)
-              (2048-for col 0 (- *2048-columns* 2)
-                        (setq has-moved (or (2048-move row col 0 1)
-                                            has-moved))))
+              (2048-for-down col (- *2048-columns* 2) 0
+                             (setq has-moved (or (2048-move row col 0 1)
+                                                 has-moved))))
     (when has-moved
       (2048-insert-random-cell)))
   (2048-print-board))
