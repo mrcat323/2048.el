@@ -71,6 +71,12 @@
            column)
         val))
 
+(defun 2048-num-to-printable (num)
+  "If you pass in 0, returns an empty string. Otherwise, returns the number as a string."
+  (if (eq num 0)
+      ""
+    (format "%d" num)))
+
 (defun 2048-was-combined-this-turn (row column)
   "Returns whether the number in it was generated this turn by two numbers combining."
   (elt *2048-combines-this-move*
@@ -119,7 +125,8 @@
 
       ;;print the numbers
       (dotimes (col *2048-columns*)
-        (insert-string (format "|%5d  " (2048-get-cell row col))))
+        (let ((current-value (2048-num-to-printable (2048-get-cell row col))))
+          (insert-string (format "|%5s  " current-value))))
       (insert "|")
       (insert "\n")
 
