@@ -21,15 +21,7 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-(defun 2048-game () "Major mode for playing 2048 in Emacs"
-  (interactive)
-  (switch-to-buffer "2048")
-  (kill-all-local-variables)
-  (setq major-mode '2048-mode)
-  (setq mode-name "2048")
-  (use-local-map *2048-keymap*)
-  (toggle-read-only t)
-  (2048-init))
+;;; Code:
 
 (defvar *2048-keymap*
   (let ((map (make-sparse-keymap)))
@@ -47,6 +39,15 @@
     (define-key map (kbd "<right>") '2048-right)
     map))
 
+(defun 2048-game () "Major mode for playing 2048 in Emacs"
+  (interactive)
+  (switch-to-buffer "2048")
+  (kill-all-local-variables)
+  (setq major-mode '2048-mode)
+  (setq mode-name "2048")
+  (use-local-map *2048-keymap*)
+  (read-only-mode)
+  (2048-init))
 
 (defvar *2048-board* nil
   "The board itself. If a number is in the square, the number is stored. Otherwise, 0 is stored.
