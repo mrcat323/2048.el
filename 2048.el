@@ -302,3 +302,6 @@
   `(when *2048-debug*
      (print (concat ,@body)
 	    (get-buffer-create "2048-debug"))))
+
+(provide '2048)
+;;; 2048.el ends here
