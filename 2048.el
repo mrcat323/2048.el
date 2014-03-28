@@ -163,31 +163,31 @@
 
       ;;print the separator lineon top of, and between cells
       (dotimes (col *2048-columns*)
-        (insert-string "+-------"))
-      (insert-string "+")
+        (insert "+-------"))
+      (insert "+")
       (insert "\n")
 
       (dotimes (col *2048-columns*)
-        (insert-string "|       "))
+        (insert "|       "))
       (insert "|")
       (insert "\n")
 
       ;;print the numbers
       (dotimes (col *2048-columns*)
         (let ((current-value (2048-num-to-printable (2048-get-cell row col))))
-          (insert-string (format "|%5s  " current-value))))
+          (insert (format "|%5s  " current-value))))
       (insert "|")
       (insert "\n")
 
       (dotimes (col *2048-columns*)
-        (insert-string "|       "))
+        (insert "|       "))
       (insert "|")
       (insert "\n"))
 
     ;;print the separator line on the bottom of the last row.
     (dotimes (col *2048-columns*)
-      (insert-string "+-------"))
-    (insert-string "+")))
+      (insert "+-------"))
+    (insert "+")))
 
 (defun 2048-move (from-row from-column delta-row delta-column)
   "Tries to move the number in (from-row, from-column) to (to-row, to-column).
