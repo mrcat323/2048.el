@@ -304,5 +304,5 @@
      (print (concat ,@body)
 	    (get-buffer-create "2048-debug"))))
 
-(provide '2048)
+(provide '2048-game)
 ;;; 2048.el ends here
