@@ -152,7 +152,7 @@
               (2048-for column 0 (1- *2048-columns*)
                         (when (eq (2048-get-cell row column)
                                   0)
-                          (setq game-was-won nil))))
+                          (setq game-was-lost nil))))
     game-was-lost))
 
 (defun 2048-print-board ()
