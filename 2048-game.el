@@ -39,14 +39,13 @@
     (define-key map (kbd "<right>") '2048-right)
     map))
 
-(defun 2048-game () "Major mode for playing 2048 in Emacs"
+(define-derived-mode 2048-mode special-mode "2048-mode"
+  (use-local-map *2048-keymap*))
+
+(defun 2048-game () "Start playing 2048"
   (interactive)
   (switch-to-buffer "2048")
-  (kill-all-local-variables)
-  (setq major-mode '2048-mode)
-  (setq mode-name "2048")
-  (use-local-map *2048-keymap*)
-  (read-only-mode)
+  (2048-mode)
   (2048-init))
 
 (defvar *2048-board* nil
