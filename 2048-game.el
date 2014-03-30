@@ -23,24 +23,19 @@
 
 ;;; Code:
 
-(defvar *2048-keymap*
-  (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "p") '2048-up)
-    (define-key map (kbd "C-p") '2048-up)
-    (define-key map (kbd "<up>") '2048-up)
-    (define-key map (kbd "n") '2048-down)
-    (define-key map (kbd "C-n") '2048-down)
-    (define-key map (kbd "<down>") '2048-down)
-    (define-key map (kbd "b") '2048-left)
-    (define-key map (kbd "C-b") '2048-left)
-    (define-key map (kbd "<left>") '2048-left)
-    (define-key map (kbd "f") '2048-right)
-    (define-key map (kbd "C-f") '2048-right)
-    (define-key map (kbd "<right>") '2048-right)
-    map))
-
 (define-derived-mode 2048-mode special-mode "2048-mode"
-  (use-local-map *2048-keymap*))
+  (define-key 2048-mode-map (kbd "p") '2048-up)
+  (define-key 2048-mode-map (kbd "C-p") '2048-up)
+  (define-key 2048-mode-map (kbd "<up>") '2048-up)
+  (define-key 2048-mode-map (kbd "n") '2048-down)
+  (define-key 2048-mode-map (kbd "C-n") '2048-down)
+  (define-key 2048-mode-map (kbd "<down>") '2048-down)
+  (define-key 2048-mode-map (kbd "b") '2048-left)
+  (define-key 2048-mode-map (kbd "C-b") '2048-left)
+  (define-key 2048-mode-map (kbd "<left>") '2048-left)
+  (define-key 2048-mode-map (kbd "f") '2048-right)
+  (define-key 2048-mode-map (kbd "C-f") '2048-right)
+  (define-key 2048-mode-map (kbd "<right>") '2048-right))
 
 (defun 2048-game () "Start playing 2048"
   (interactive)
