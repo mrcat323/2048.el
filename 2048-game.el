@@ -147,6 +147,22 @@
                         (when (eq (2048-get-cell row column)
                                   0)
                           (setq game-was-lost nil))))
+
+    ;; For each square, if that square has one below it that's the same,
+    ;; the game's not over.
+    (2048-for row 0 (- *2048-rows* 2)
+              (2048-for column 0 (1- *2048-columns*)
+                        (when (eq (2048-get-cell row column)
+                                      (2048-get-cell (1+ row) column))
+                          (setq game-was-lost nil))))
+
+    ;; For each square, if that square has one to its right that's the same,
+    ;; the game's not over.
+    (2048-for column 0 (- *2048-columns* 2)
+              (2048-for row 0 (1- *2048-rows*)
+                        (when (eq (2048-get-cell row column)
+                                  (2048-get-cell row (1+ column)))
+                          (setq game-was-lost nil))))
     game-was-lost))
 
 (defun 2048-print-board ()
