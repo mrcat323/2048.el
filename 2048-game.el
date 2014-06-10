@@ -65,7 +65,7 @@
 (defvar *2048-debug* nil
   "when 't, print debugging information.")
 
-(defconst *2048-numbers* '(0 2 4 8 16 32 64 128 256 1024 2048))
+(defconst *2048-numbers* '(0 2 4 8 16 32 64 128 256 512 1024 2048))
 
 (defvar *2048-score* nil
   "Current score in the game. Incrases every time you collapse two equal cells.
