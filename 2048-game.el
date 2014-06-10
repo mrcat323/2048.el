@@ -65,14 +65,66 @@
 (defvar *2048-debug* nil
   "when 't, print debugging information.")
 
+(defconst *2048-numbers* '(0 2 4 8 16 32 64 128 256 512 1024 2048))
+
+(defvar *2048-score* nil
+  "Current score in the game. Incrases every time you collapse two equal cells.
+TODO: find out the actual scoring rules of the 2048 game.")
+
+; TODO: pick some better colors, see (2048-test-tiles)
+(defface 2048-face-2    '((t . (:background "lightyellow1"))) "Face for the tile 2")
+(defface 2048-face-4    '((t . (:background "yellow1")))      "Face for the tile 4")
+(defface 2048-face-8    '((t . (:background "lightyellow2"))) "Face for the tile 8")
+(defface 2048-face-16   '((t . (:background "pink1")))        "Face for the tile 16")
+(defface 2048-face-32   '((t . (:background "pink2")))        "Face for the tile 32")
+(defface 2048-face-64   '((t . (:background "lawn green")))   "Face for the tile 64")
+(defface 2048-face-128  '((t . (:background "chiffon")))      "Face for the tile 128")
+(defface 2048-face-256  '((t . (:background "red1")))         "Face for the tile 256")
+(defface 2048-face-1024 '((t . (:background "red2")))         "Face for the tile 1024")
+(defface 2048-face-2048 '((t . (:background "red3")))         "Face for the tile 2048")
+
+(defun 2048-empty (n)
+  "Return symbol of the variable holding empty space for number N"
+  (intern (concat "2048-empty-" (int-to-string n))))
+
+(defun 2048-tile (n)
+  "Return symbol of the variable holding tile for number N"
+  (intern (concat "2048-tile-" (int-to-string n))))
+
+(defun 2048-init-tiles ()
+  "Init each variable 2048-empty-N and 2048-tile-N with appropriate string and face"
+  (mapc #'(lambda (num)
+            (set (2048-empty num) (concat "       " "")) ; else all faces are applied to it
+            (set (2048-tile num) (format "%5s  " (2048-num-to-printable num)))
+            (when (> num 0)
+              (let ((face (intern (concat "2048-face-" (int-to-string num)))))
+                (put-text-property 0 7 'font-lock-face face (symbol-value (2048-empty num)))
+                (put-text-property 0 7 'font-lock-face face (symbol-value (2048-tile num))))))
+        *2048-numbers*))
+
+(defun 2048-test-tiles ()
+  "Test out the tile colors"
+  (interactive)
+  (let ((*2048-board*
+         (vconcat *2048-numbers*
+                  (make-vector (- (* *2048-columns* *2048-rows*)
+                                  (length *2048-numbers*))
+                               0)))
+        (*2048-score* 123456))
+    (switch-to-buffer "2048-test")
+    (2048-init-tiles)
+    (2048-print-board)))
+
 (defun 2048-init ()
   "Begin a game of 2048."
   (setq *2048-board* (make-vector (* *2048-columns* *2048-rows*)
                                   0))
   (setq *2048-combines-this-move* (make-vector (* *2048-columns* *2048-rows*)
                                                nil))
+  (setq *2048-score* 0)
   (2048-insert-random-cell)
   (2048-insert-random-cell)
+  (2048-init-tiles)
   (2048-print-board))
 
 (defun 2048-get-cell (row col)
@@ -171,33 +223,41 @@
     (erase-buffer)
     (dotimes (row *2048-rows*)
 
-      ;;print the separator lineon top of, and between cells
+      ;;print the separator line on top of, and between cells
       (dotimes (col *2048-columns*)
         (insert "+-------"))
       (insert "+")
       (insert "\n")
 
+      ;;print the empty line above numbers
       (dotimes (col *2048-columns*)
-        (insert "|       "))
+        (insert "|")
+        (let ((current-value (2048-get-cell row col)))
+          (insert (symbol-value (2048-empty current-value)))))
       (insert "|")
       (insert "\n")
 
-      ;;print the numbers
+      ;; print the number tiles
       (dotimes (col *2048-columns*)
-        (let ((current-value (2048-num-to-printable (2048-get-cell row col))))
-          (insert (format "|%5s  " current-value))))
+        (insert "|")
+        (let ((current-value (2048-get-cell row col)))
+          (insert (symbol-value (2048-tile current-value)))))
       (insert "|")
       (insert "\n")
 
+      ;;print the empty line below numbers
       (dotimes (col *2048-columns*)
-        (insert "|       "))
+        (insert "|")
+        (let ((current-value (2048-get-cell row col)))
+          (insert (symbol-value (2048-empty current-value)))))
       (insert "|")
       (insert "\n"))
 
     ;;print the separator line on the bottom of the last row.
     (dotimes (col *2048-columns*)
       (insert "+-------"))
-    (insert "+")))
+    (insert "+\n")
+    (insert (format "Score: %d\n" *2048-score*))))
 
 (defun 2048-move (from-row from-column delta-row delta-column)
   "Tries to move the number in (from-row, from-column) to (to-row, to-column).
@@ -216,6 +276,7 @@
                            (2048-was-combined-this-turn to-row to-column))
                  (2048-debug (format "combining (%d, %d) into (%d, %d)" from-row from-column to-row to-column))
                  (2048-set-cell to-row to-column (* from-val 2))
+                 (setq *2048-score* (+ *2048-score* from-val))
                  (2048-set-cell from-row from-column 0)
                  (2048-set-was-combined-this-turn to-row to-column)))
               ((eq to-val 0)
